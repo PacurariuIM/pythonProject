@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests
+import json
 
 app = FastAPI(
     title="My nutrition app",
@@ -19,12 +21,9 @@ headers = {
 
 response = requests.request("GET", url, headers=headers, params=querystring)
 json_response = response.json()
-print(json_response)
+# print(json_response)
 repo = json_response["items"][0:]
 print(repo)
 a_key = "calories"
-value_of_keys = [a_dict[a_key] for a_dict in repo]
-print(sum(value_of_keys))
-# calories = repo[8]
-# print(calories)
-# print(response.text)
+a_value = [a_dict[a_key] for a_dict in repo]
+print(sum(a_value))

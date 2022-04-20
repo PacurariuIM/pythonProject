@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests
 import json
 
@@ -11,19 +10,17 @@ app = FastAPI(
 
 url = "https://calorieninjas.p.rapidapi.com/v1/nutrition"
 
-menu = input("What have you eaten today?")
-querystring = {"query": menu}
+@app.post("/")
+def post_menu(menu):
+    querystring = {"query": menu}
+    headers = {
+        "X-RapidAPI-Host": "calorieninjas.p.rapidapi.com",
+        "X-RapidAPI-Key": "01ddd026b8mshec61cafc6a64887p1fb588jsndace5b8828ab"
+    }
 
-headers = {
-    "X-RapidAPI-Host": "calorieninjas.p.rapidapi.com",
-    "X-RapidAPI-Key": "01ddd026b8mshec61cafc6a64887p1fb588jsndace5b8828ab"
-}
-
-response = requests.request("GET", url, headers=headers, params=querystring)
-json_response = response.json()
-# print(json_response)
-repo = json_response["items"][0:]
-print(repo)
-a_key = "calories"
-a_value = [a_dict[a_key] for a_dict in repo]
-print(sum(a_value))
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    json_response = response.json()
+    repo = json_response["items"][0:]
+    a_key = "calories"
+    a_value = [a_dict[a_key] for a_dict in repo]
+    return sum(a_value)

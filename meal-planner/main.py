@@ -1,7 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request 
+import requests
+
+from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy 
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from forms import IngredientForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
@@ -61,6 +64,35 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+# Debugging table
+@app.route('/db_check')
+def db_check():
+    with app.app_context():
+        tables = db.engine.table_names()
+        return f"Tables in database: {tables}"
+    
+# Route to get ingredients, send request, return recipes
+SPOONACULAR_API_KEY='9b9efdf863ff4457a17b867b0962413b'
+@app.route('/get_recipes', methods=['GET', 'POST'])
+@login_required
+def get_recipes():
+    form = IngredientForm()
+    recipes = None
+    if form.validate_on_submit():
+        # Get ingredients from the form
+        ingredients = form.ingredients.data
+        # Make a request to Spoonacular API
+        url = f"https://api.spoonacular.com/recipes/findByIngredients?ingredients={ingredients}&number=10&apiKey={SPOONACULAR_API_KEY}"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            recipes = response.json()  # List of recipes returned by the API
+        else:
+            flash('Failed to fetch recipes. Please try again.', 'danger')
+    
+    return render_template('get_recipes.html', form=form, recipes=recipes)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

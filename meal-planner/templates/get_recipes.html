@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Recipes</title>
+</head>
+<body>
+    <h1>Find Recipes by Ingredients</h1>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.ingredients.label }} {{ form.ingredients() }}<br>
+        {{ form.submit() }}
+    </form>
+
+    {% if recipes %}
+        <h2>Recipe Suggestions</h2>
+        <ul>
+            {% for recipe in recipes %}
+                <li>
+                    <strong>{{ recipe.title }}</strong><br>
+                    <img src="{{ recipe.image }}" alt="{{ recipe.title }}" width="200"><br>
+                    <a href="https://spoonacular.com/recipes/{{ recipe.title | replace(' ', '-') }}-{{ recipe.id }}" target="_blank">View Full Recipe</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

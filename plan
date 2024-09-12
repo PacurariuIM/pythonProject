@@ -1,12 +1,2 @@
-Create an app that takes food types and quantities and returns number of calories.
 
-What we need:
-1. index file:  - connect to server (uvicorn)
-                - use the nutrition API
-                - methods: return the calories (POST?)
-                -
-2. sqlite database: save info from user
-3. config file
-4. requirements file
-5. exceptions
-6. tests
+git config --global user.name "PacurariuIM"

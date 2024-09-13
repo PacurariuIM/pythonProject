@@ -1,16 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <!-- Add Bootstrap CSS CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Welcome to the Meal Planner!</h1>
-    {% if current_user.is_authenticated %}
-        <p>Hello, {{ current_user.username }}!</p>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register') }}">Register</a>
-    {% endif %}
+
+    <div class="container">
+        <h1 class="my-5 text-center">Welcome to the Meal Planner!</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                {% if current_user.is_authenticated %}
+                    <p>Hello, <strong>{{ current_user.username }}</strong>!</p>
+                    <a href="{{ url_for('get_recipes') }}" class="btn btn-success btn-lg my-2">Find Recipes by Ingredients</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg my-2">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg my-2">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-secondary btn-lg my-2">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

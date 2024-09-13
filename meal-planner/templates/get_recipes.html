@@ -3,28 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Recipes</title>
+    <title>Recipe Finder</title>
+    <!-- Add Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Find Recipes by Ingredients</h1>
 
-    <form method="POST">
+<div class="container">
+    <h1 class="my-5 text-center">Find Recipes by Ingredients</h1>
+
+    <!-- Recipe Search Form -->
+    <form method="POST" class="my-4">
         {{ form.hidden_tag() }}
-        {{ form.ingredients.label }} {{ form.ingredients() }}<br>
-        {{ form.submit() }}
+        <div class="form-group">
+            {{ form.ingredients.label(class="form-label") }}
+            {{ form.ingredients(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">Get Recipes</button>
     </form>
 
+    <!-- Display Recipes -->
     {% if recipes %}
-        <h2>Recipe Suggestions</h2>
-        <ul>
+        <h2 class="my-4">Recipe Suggestions</h2>
+        <div class="row">
             {% for recipe in recipes %}
-                <li>
-                    <strong>{{ recipe.title }}</strong><br>
-                    <img src="{{ recipe.image }}" alt="{{ recipe.title }}" width="200"><br>
-                    <a href="https://spoonacular.com/recipes/{{ recipe.title | replace(' ', '-') }}-{{ recipe.id }}" target="_blank">View Full Recipe</a>
-                </li>
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ recipe.title }}</h5>
+                            <a href="https://spoonacular.com/recipes/{{ recipe.title | replace(' ', '-') }}-{{ recipe.id }}" class="btn btn-info" target="_blank">View Full Recipe</a>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
+    {% else %}
+        <p class="text-center">No recipes to display. Please enter ingredients to search for recipes.</p>
     {% endif %}
+</div>
+
+<!-- Add Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 </html>

@@ -1,4 +1,5 @@
 import requests
+import os
 
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy 
@@ -93,7 +94,7 @@ def db_check():
         return f"Tables in database: {tables}"
     
 # Route to get ingredients, send request, return recipes
-SPOONACULAR_API_KEY='9b9efdf863ff4457a17b867b0962413b'
+SPOONACULAR_API_KEY = os.getenv('SPOONACULAR_API_KEY')
 @app.route('/get_recipes', methods=['GET', 'POST'])
 @login_required
 def get_recipes():

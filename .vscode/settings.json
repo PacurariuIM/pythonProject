@@ -1,3 +1,6 @@
 {
-    "workbench.settings.openDefaultSettings": false
+    "workbench.settings.openDefaultSettings": false,
+    "terminal.integrated.env.windows": {
+    "SPOONACULAR_API_KEY": "9b9efdf863ff4457a17b867b0962413b"
+    },
 }

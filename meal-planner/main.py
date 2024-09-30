@@ -1,11 +1,15 @@
 import requests
 import os
+from flask import jsonify
+import requests
+from bs4 import BeautifulSoup
 
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy 
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import RegistrationForm, IngredientForm, LoginForm
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
@@ -13,6 +17,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # Use SQLite for si
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+# Load environment variables from .env file
+load_dotenv()
 
 # User model
 class User(db.Model, UserMixin):
@@ -26,6 +33,19 @@ class User(db.Model, UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+class Recipe(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    ingredients = db.Column(db.Text, nullable=False)
+    instructions = db.Column(db.Text, nullable=False)
+    calories = db.Column(db.Float)
+
+    user = db.relationship('User', backref=db.backref('recipes', lazy=True))
+
+    def __repr__(self):
+        return f"Recipe('{self.name}', '{self.calories}')"
 
 # Home route
 @app.route('/')
@@ -113,6 +133,34 @@ def get_recipes():
             flash('Failed to fetch recipes. Please try again.', 'danger')
     
     return render_template('get_recipes.html', form=form, recipes=recipes)
+
+@app.route('/save_recipe/<int:recipe_id>', methods=['POST'])
+@login_required
+def save_recipe(recipe_id):
+    # Get the recipe's full page URL from the request
+    recipe = requests.get(f"https://api.spoonacular.com/recipes/{recipe_id}/information?apiKey={SPOONACULAR_API_KEY}").json()
+    
+    # Assuming recipe details are in this structure
+    recipe_name = recipe['title']
+    recipe_ingredients = ", ".join([ingredient['name'] for ingredient in recipe['extendedIngredients']])
+    recipe_instructions = recipe['instructions']
+    recipe_calories = recipe['nutrition']['nutrients'][0]['amount'] if recipe['nutrition']['nutrients'] else 0
+
+    # Create a new Recipe object (you'll need to define this in your models)
+    new_recipe = Recipe(
+        user_id=current_user.id,
+        name=recipe_name,
+        ingredients=recipe_ingredients,
+        instructions=recipe_instructions,
+        calories=recipe_calories
+    )
+    
+    # Add to the database
+    db.session.add(new_recipe)
+    db.session.commit()
+    
+    flash('Recipe saved successfully!', 'success')
+    return redirect(url_for('get_recipes'))
 
 
 if __name__ == '__main__':

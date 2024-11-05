@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ recipe.title }}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <h1 class="my-5 text-center">{{ recipe.title }}</h1>
+
+    <!-- Display Ingredients -->
+    <h3>Ingredients</h3>
+    <ul class="list-group mb-4">
+        {% for ingredient in recipe.ingredients %}
+            <li class="list-group-item">{{ ingredient }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Display Instructions -->
+    <h3>Instructions</h3>
+    <ol class="list-group list-group-numbered mb-5">
+        {% for instruction in recipe.instructions %}
+            <li class="list-group-item">{{ instruction }}</li>
+        {% endfor %}
+    </ol>
+
+    <!-- Save to PDF button -->
+    <form action="{{ url_for('save_pdf') }}" method="POST">
+        <button type="submit" class="btn btn-primary">Save to PDF</button>
+    </form>
+
+    <!-- <a href="{{ url_for('get_recipes') }}" class="btn btn-primary">Back to Recipes</a> -->
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

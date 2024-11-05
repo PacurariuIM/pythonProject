@@ -32,14 +32,10 @@
                         <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.title }}">
                         <div class="card-body">
                             <h5 class="card-title">{{ recipe.title }}</h5>
-                            <a href="https://spoonacular.com/recipes/{{ recipe.title | replace(' ', '-') }}-{{ recipe.id }}" class="btn btn-info" target="_blank">View Full Recipe</a>
-
-                            <!-- Save Recipe Form -->
-                            <form action="{{ url_for('save_recipe', recipe_id=recipe.id) }}" method="POST" class="mt-2">
-                                <input type="hidden" name="recipe_title" value="{{ recipe.title }}">
-                                <input type="hidden" name="recipe_image" value="{{ recipe.image }}">
+                            <!-- Replace 'View Full Recipe' button with 'See Recipe' -->
+                            <form action="{{ url_for('recipe') }}" method="POST">
                                 <input type="hidden" name="recipe_url" value="https://spoonacular.com/recipes/{{ recipe.title | replace(' ', '-') }}-{{ recipe.id }}">
-                                <button type="submit" class="btn btn-success btn-block">Save Recipe</button>
+                                <button type="submit" class="btn btn-info">See Recipe</button>
                             </form>
                         </div>
                     </div>

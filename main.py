@@ -1,5 +1,6 @@
 import requests
 import os
+import uvicorn
 
 from flask import Flask, render_template, redirect, url_for, request, flash, session, send_file
 from flask_sqlalchemy import SQLAlchemy 
@@ -268,4 +269,5 @@ def recipe():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+

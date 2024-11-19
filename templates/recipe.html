@@ -8,35 +8,76 @@
 </head>
 <body>
 
-<div class="container">
-    <h1 class="my-5 text-center">{{ recipe.title }}</h1>
+    <div class="container">
+        <h1 class="my-5 text-center">{{ recipe.title }}</h1>
+    
+        <!-- Display Ingredients -->
+        <h3>Ingredients</h3>
+        <ul class="list-group mb-4">
+            {% for ingredient in recipe.ingredients %}
+                <li class="list-group-item">{{ ingredient }}</li>
+            {% endfor %}
+        </ul>
+    
+        <!-- Display Instructions -->
+        <h3>Instructions</h3>
+        <ol class="list-group list-group-numbered mb-5">
+            {% for instruction in recipe.instructions %}
+                <li class="list-group-item">{{ instruction }}</li>
+            {% endfor %}
+        </ol>
+    
+        <!-- Save to PDF button -->
+        <button id="downloadPdf" class="btn btn-primary">Save to PDF</button>
+    
+    </div>
 
-    <!-- Display Ingredients -->
-    <h3>Ingredients</h3>
-    <ul class="list-group mb-4">
-        {% for ingredient in recipe.ingredients %}
-            <li class="list-group-item">{{ ingredient }}</li>
-        {% endfor %}
-    </ul>
+    <script>
+            // Log jsPDF object to the console to check if it's loaded
+        if (window.jspdf) {
+            console.log("jsPDF is loaded:", window.jspdf);  // Should log jsPDF object
+        } else {
+            console.error("jsPDF is not loaded.");
+        }
 
-    <!-- Display Instructions -->
-    <h3>Instructions</h3>
-    <ol class="list-group list-group-numbered mb-5">
-        {% for instruction in recipe.instructions %}
-            <li class="list-group-item">{{ instruction }}</li>
-        {% endfor %}
-    </ol>
-
-    <!-- Save to PDF button -->
-    <form action="{{ url_for('save_pdf') }}" method="POST">
-        <button type="submit" class="btn btn-primary">Save to PDF</button>
-    </form>
-
-    <!-- <a href="{{ url_for('get_recipes') }}" class="btn btn-primary">Back to Recipes</a> -->
-</div>
+        document.getElementById('downloadPdf').addEventListener('click', function() {
+            console.log('Button clicked');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+    
+            // Title
+            const title = "{{ recipe.title }}";
+            doc.setFontSize(18);
+            doc.text(title, 10, 10);
+    
+            // Ingredients
+            doc.setFontSize(14);
+            doc.text('Ingredients:', 10, 20);
+            const ingredientsData = JSON.parse('{{ recipe.ingredients_json | safe }}');
+            let yPosition = 30;
+            ingredientsData.forEach(ingredient => {
+                doc.text(`- ${ingredient}`, 10, yPosition);
+                yPosition += 10;
+            });
+    
+            // Instructions
+            doc.text('Instructions:', 10, yPosition + 10);
+            const instructionsData = JSON.parse('{{ recipe.instructions_json | safe }}');
+            yPosition += 20;
+            instructionsData.forEach((instruction, index) => {
+                doc.text(`${index + 1}. ${instruction}`, 10, yPosition);
+                yPosition += 10;
+            });
+    
+            // Save PDF
+            doc.save(`${title}.pdf`);
+        });
+    </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+
 </body>
 </html>

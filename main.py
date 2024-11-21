@@ -2,14 +2,11 @@ import requests
 import os
 import uvicorn
 
-from flask import Flask, render_template, redirect, url_for, request, flash, session, send_file
+from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy 
 from forms import IngredientForm
 from dotenv import load_dotenv
 from lxml import html
-from reportlab.lib.pagesizes import letter
-from fpdf import FPDF
-from flask import jsonify
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
@@ -32,12 +29,6 @@ class Recipe(db.Model):
 
     def __repr__(self):
         return f"Recipe('{self.name}', '{self.user_id}')"
-
-
-# Home route
-# @app.route('/')
-# def home():
-#     return render_template('home.html')
 
 
 # Debugging table
@@ -140,41 +131,6 @@ def scrape_recipe(url):
         print(f"Failed to retrieve the page. Status code: {response.status_code}")
         return None
 
-
-# def scrape_recipe(url):
-#     response = requests.get(url)
-#     if response.status_code == 200:
-#         tree = html.fromstring(response.content)
-
-#         # Extract recipe title
-#         recipe_title = tree.xpath('/html/body/div[4]/div/div[3]/h1/text()')
-#         recipe_title = recipe_title[0].strip() if recipe_title else 'Title not found'
-
-#         # Extract ingredients
-#         ingredients = tree.xpath('/html/body/div[4]/div/div[3]/div[9]/div/div[2]/div[3]/text()')
-#         ingredients = [ingredient.strip() for ingredient in ingredients if ingredient.strip()]
-
-#         # Extract instructions, with a fallback to another method if the first fails
-#         instructions = tree.xpath('/html/body/div[4]/div/div[3]/div[8]/div/div/ol/li/text()')
-#         if not instructions:  # Attempt a secondary method
-#             instructions_div = tree.xpath('/html/body/div[4]/div/div[3]/div[8]/div/div/text()')
-#             instructions = [text.strip() for text in instructions_div if text.strip()]
-
-#         # Clean instructions
-#         instructions = [instruction for instruction in instructions if instruction]
-
-#         # Create a dictionary to store the recipe data
-#         recipe_data = {
-#             'title': recipe_title,
-#             'ingredients': ingredients,
-#             'instructions': instructions
-#         }
-
-#         return recipe_data
-#     else:
-#         print(f"Failed to retrieve the page. Status code: {response.status_code}")
-#         return None
-
 @app.route('/recipe', methods=['POST'])
 def recipe():
     recipe_url = request.form.get('recipe_url')
@@ -193,8 +149,8 @@ def recipe():
     return redirect(url_for('get_recipes'))
 
 
-# if __name__ == '__main__':
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000)
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+
+# if __name__ == '__main__':
+#     app.run(debug=True)

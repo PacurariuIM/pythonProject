@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ recipe.title }}</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        // Check if jsPDF is loaded properly
+        if (window.jspdf) {
+            console.log("jsPDF is loaded:", window.jspdf);  // Should log the jsPDF object
+        } else {
+            console.error("jsPDF is not loaded.");
+        }
+    </script>
 </head>
 <body>
 
@@ -33,51 +42,62 @@
     </div>
 
     <script>
-            // Log jsPDF object to the console to check if it's loaded
-        if (window.jspdf) {
-            console.log("jsPDF is loaded:", window.jspdf);  // Should log jsPDF object
-        } else {
-            console.error("jsPDF is not loaded.");
-        }
+        // Debug the JSON string safely
+        console.log("Raw JSON for Ingredients:", `{{ recipe.ingredients | tojson | safe }}`);
 
-        document.getElementById('downloadPdf').addEventListener('click', function() {
-            console.log('Button clicked');
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-    
-            // Title
-            const title = "{{ recipe.title }}";
-            doc.setFontSize(18);
-            doc.text(title, 10, 10);
-    
-            // Ingredients
-            doc.setFontSize(14);
-            doc.text('Ingredients:', 10, 20);
-            const ingredientsData = JSON.parse('{{ recipe.ingredients_json | safe }}');
-            let yPosition = 30;
-            ingredientsData.forEach(ingredient => {
-                doc.text(`- ${ingredient}`, 10, yPosition);
+        try {
+            // Parse the JSON safely
+            const ingredientsData = JSON.parse('{{ recipe.ingredients | tojson | safe }}');
+            console.log("Parsed Ingredients Data:", ingredientsData);
+
+            const instructionsData = JSON.parse(`{{ recipe.instructions | tojson | safe }}`);
+            console.log("Parsed Instructions Data:", instructionsData);
+
+            // Add click event to save PDF
+            document.getElementById('downloadPdf').addEventListener('click', function () {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Title
+                const title = "{{ recipe.title }}";
+                doc.setFontSize(18);
+                doc.text(title, 10, 10);
+
+                // Ingredients
+                doc.setFontSize(14);
+                doc.text('Ingredients:', 10, 20);
+
+                let yPosition = 30;
+                ingredientsData.forEach(ingredient => {
+                    doc.text(`- ${ingredient}`, 10, yPosition);
+                    yPosition += 10;
+                });
+
+                // Instructions
+                yPosition += 10; // Add some space between sections
+                doc.text('Instructions:', 10, yPosition);
                 yPosition += 10;
+
+                instructionsData.forEach((instruction, index) => {
+                    // Wrap long text using splitTextToSize
+                    const wrappedText = doc.splitTextToSize(`${index + 1}. ${instruction}`, 180); // 180 adjusts to the width of the page
+                    doc.text(wrappedText, 10, yPosition);
+                    yPosition += wrappedText.length * 10; // Adjust spacing based on wrapped text
+                });
+                
+                // Save PDF
+                doc.save(`${title}.pdf`);
             });
-    
-            // Instructions
-            doc.text('Instructions:', 10, yPosition + 10);
-            const instructionsData = JSON.parse('{{ recipe.instructions_json | safe }}');
-            yPosition += 20;
-            instructionsData.forEach((instruction, index) => {
-                doc.text(`${index + 1}. ${instruction}`, 10, yPosition);
-                yPosition += 10;
-            });
-    
-            // Save PDF
-            doc.save(`${title}.pdf`);
-        });
+           
+        } catch (error) {
+            console.error("Error parsing JSON:", error.message);
+        }
     </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
 </body>
 </html>

@@ -141,16 +141,20 @@ def recipe():
     if recipe_url:
         recipe_data = scrape_recipe(recipe_url)
         if recipe_data:
-            # Convert ingredients and instructions to JSON in Python before rendering
-            recipe_data['ingredients_json'] = jsonify(recipe_data['ingredients']).get_data(as_text=True)
-            recipe_data['instructions_json'] = jsonify(recipe_data['instructions']).get_data(as_text=True)
+            # Sanitize recipe data
+            recipe_data['ingredients'] = [
+                ingredient.replace('\n', ' ').replace('"', "'") for ingredient in recipe_data['ingredients']
+            ]
+            recipe_data['instructions'] = [
+                instruction.replace('\n', ' ').replace('"', "'") for instruction in recipe_data['instructions']
+            ]
             return render_template('recipe.html', recipe=recipe_data)
     flash('Invalid recipe URL or failed to scrape data.', 'danger')
     return redirect(url_for('get_recipes'))
 
 
-# if __name__ == '__main__':
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000)
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+
+# if __name__ == '__main__':
+#     app.run(debug=True)

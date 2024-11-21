@@ -4,22 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ recipe.title }}</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script>
-        // Check if jsPDF is loaded properly
-        if (window.jspdf) {
-            console.log("jsPDF is loaded:", window.jspdf);  // Should log the jsPDF object
-        } else {
-            console.error("jsPDF is not loaded.");
-        }
-    </script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">    
 </head>
 <body>
 
     <div class="container">
         <h1 class="my-5 text-center">{{ recipe.title }}</h1>
+
+        <!-- Save to PDF button -->
+        <button id="downloadPdf" class="btn btn-primary">Save to PDF</button>
+
+        <script>
+            // Get the button element
+            const button = document.getElementById('downloadPdf');
+            
+            // Change the button's background color implicitly (as soon as the page loads)
+            button.style.backgroundColor = '#8b0000';
+            button.style.color = 'white';
+        </script>
+
+        <!-- Back Button -->
+        <button onclick="window.history.back()" class="btn btn-secondary" >Back</button>
     
+        <!-- Input number -->
+        <input type="number" id="inputValue" placeholder="Enter value" />
+        
+        <!-- From Unit Dropdown -->
+        <select id="fromUnit" style="flex: 1;">
+            <option value="oz">Ounces (oz)</option>
+            <option value="g">Grams (g)</option>
+            <option value="lb">Pounds (lb)</option>
+            <option value="kg">Kilograms (kg)</option>
+            <option value="ml">Milliliters (ml)</option>
+            <option value="l">Liters (l)</option>
+            <option value="C">Celsius (°C)</option>
+            <option value="F">Fahrenheit (°F)</option>
+        </select>
+        
+        <!-- To Unit Dropdown -->
+        <select id="toUnit" style="flex: 1;">
+            <option value="g">Grams (g)</option>
+            <option value="oz">Ounces (oz)</option>
+            <option value="lb">Pounds (lb)</option>
+            <option value="kg">Kilograms (kg)</option>
+            <option value="ml">Milliliters (ml)</option>
+            <option value="l">Liters (l)</option>
+            <option value="F">Fahrenheit (°F)</option>
+            <option value="C">Celsius (°C)</option>
+        </select>
+        
+        <!-- Convert Button -->
+        <button onclick="convertUnits()" style="flex: 1;">Convert</button>
+        
+        <!-- Result Box -->
+        <div class="result" id="resultBox" style="flex: 2; padding: 5px; text-align: center;"></div>
+
         <!-- Display Ingredients -->
         <h3>Ingredients</h3>
         <ul class="list-group mb-4">
@@ -36,14 +75,11 @@
             {% endfor %}
         </ol>
     
-        <!-- Save to PDF button -->
-        <button id="downloadPdf" class="btn btn-primary">Save to PDF</button>
-    
     </div>
 
     <script>
-        // Debug the JSON string safely
-        console.log("Raw JSON for Ingredients:", `{{ recipe.ingredients | tojson | safe }}`);
+        // // Debug the JSON string safely
+        // console.log("Raw JSON for Ingredients:", `{{ recipe.ingredients | tojson | safe }}`);
 
         try {
             // Parse the JSON safely
@@ -84,13 +120,80 @@
                     doc.text(wrappedText, 10, yPosition);
                     yPosition += wrappedText.length * 10; // Adjust spacing based on wrapped text
                 });
-                
+
                 // Save PDF
                 doc.save(`${title}.pdf`);
             });
            
         } catch (error) {
             console.error("Error parsing JSON:", error.message);
+        }
+    </script>
+    <script>
+        function convertUnits() {
+          // Get the input value, from unit, and to unit
+          const inputValue = parseFloat(document.getElementById('inputValue').value);
+          const fromUnit = document.getElementById('fromUnit').value;
+          const toUnit = document.getElementById('toUnit').value;
+    
+          // Validation for empty input
+          if (isNaN(inputValue) || inputValue === '') {
+            document.getElementById('resultBox').innerText = "Please enter a valid number.";
+            return;
+          }
+    
+          // Conversion logic
+          let result = 0;
+          let message = '';
+          
+          if (fromUnit === toUnit) {
+            result = inputValue;
+            message = `${inputValue} ${fromUnit}`;
+          } else {
+            switch (fromUnit) {
+              case 'oz':
+                if (toUnit === 'g') result = inputValue * 28.3495;
+                else if (toUnit === 'lb') result = inputValue / 16;
+                else if (toUnit === 'kg') result = inputValue / 35.274;
+                break;
+              case 'g':
+                if (toUnit === 'oz') result = inputValue / 28.3495;
+                else if (toUnit === 'lb') result = inputValue / 453.592;
+                else if (toUnit === 'kg') result = inputValue / 1000;
+                break;
+              case 'lb':
+                if (toUnit === 'oz') result = inputValue * 16;
+                else if (toUnit === 'g') result = inputValue * 453.592;
+                else if (toUnit === 'kg') result = inputValue / 2.205;
+                break;
+              case 'kg':
+                if (toUnit === 'oz') result = inputValue * 35.274;
+                else if (toUnit === 'g') result = inputValue * 1000;
+                else if (toUnit === 'lb') result = inputValue * 2.205;
+                break;
+              case 'ml':
+                if (toUnit === 'l') result = inputValue / 1000;
+                break;
+              case 'l':
+                if (toUnit === 'ml') result = inputValue * 1000;
+                break;
+              case 'C':
+                if (toUnit === 'F') result = (inputValue * 9/5) + 32;
+                break;
+              case 'F':
+                if (toUnit === 'C') result = (inputValue - 32) * 5/9;
+                break;
+              default:
+                message = "Conversion not supported for selected units.";
+            }
+          }
+          
+          if (message === '') {
+            message = `${inputValue} ${fromUnit} is equal to ${result} ${toUnit}`;
+          }
+          
+          // Display the result
+          document.getElementById('resultBox').innerText = message;
         }
     </script>
 

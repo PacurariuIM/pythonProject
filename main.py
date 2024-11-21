@@ -35,9 +35,9 @@ class Recipe(db.Model):
 
 
 # Home route
-@app.route('/')
-def home():
-    return render_template('home.html')
+# @app.route('/')
+# def home():
+#     return render_template('home.html')
 
 
 # Debugging table
@@ -49,7 +49,7 @@ def db_check():
     
 # Route to get ingredients, send request, return recipes
 SPOONACULAR_API_KEY = os.getenv('SPOONACULAR_API_KEY')
-@app.route('/get_recipes', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def get_recipes():
     form = IngredientForm()
     recipes = None
@@ -67,27 +67,65 @@ def get_recipes():
     
     return render_template('get_recipes.html', form=form, recipes=recipes)
 
-
 def scrape_recipe(url):
     response = requests.get(url)
     if response.status_code == 200:
         tree = html.fromstring(response.content)
 
-        # Extract recipe title
-        recipe_title = tree.xpath('/html/body/div[4]/div/div[3]/h1/text()')
+        # Extract recipe title dynamically based on tag (e.g., <h1>) and itemprop or class
+        recipe_title = tree.xpath('//h1[contains(@itemprop, "name")]/text()')
         recipe_title = recipe_title[0].strip() if recipe_title else 'Title not found'
 
-        # Extract ingredients
-        ingredients = tree.xpath('/html/body/div[4]/div/div[3]/div[9]/div/div[2]/div[3]/text()')
-        ingredients = [ingredient.strip() for ingredient in ingredients if ingredient.strip()]
+        # Initialize ingredients list (set to avoid duplicates)
+        ingredients = set()
 
-        # Extract instructions, with a fallback to another method if the first fails
-        instructions = tree.xpath('/html/body/div[4]/div/div[3]/div[8]/div/div/ol/li/text()')
-        if not instructions:  # Attempt a secondary method
-            instructions_div = tree.xpath('/html/body/div[4]/div/div[3]/div[8]/div/div/text()')
-            instructions = [text.strip() for text in instructions_div if text.strip()]
+        # Dynamically search for all ingredient sections with the class 'spoonacular-ingredient'
+        ingredient_sections = tree.xpath('//div[contains(@class, "spoonacular-ingredient")]')
 
-        # Clean instructions
+        for section in ingredient_sections:
+            # Search for quantity and ingredient name within the section
+            quantity_metric = section.xpath('.//div[contains(@class, "spoonacular-metric")]/text()')
+            quantity_us = section.xpath('.//div[contains(@class, "spoonacular-us")]/text()')
+            name = section.xpath('.//div[contains(@class, "spoonacular-name")]/text()')
+
+            # Prioritize metric; fallback to US if available
+            quantity = quantity_metric[0].strip() if quantity_metric else (quantity_us[0].strip() if quantity_us else '')
+            name = name[0].strip() if name else 'Unknown ingredient'
+
+            if quantity and name:
+                ingredients.add(f"{quantity} {name}")
+
+        # Convert the set back to a list and optionally sort it
+        ingredients = list(ingredients)
+
+        # Instructions Extraction - Dynamically search for instructions divs
+        instructions = []
+
+        # Primary search: for recipe instructions (class-based or itemprop-based)
+        instruction_div = tree.xpath('//div[contains(@class, "recipeInstructions")]')
+        if instruction_div:
+            instructions_text = instruction_div[0].text_content().strip()
+            instructions = instructions_text.split('\n')  # Split by new lines to separate steps
+            instructions = [step.strip() for step in instructions if step.strip()]
+
+        # Fallback search for alternative instruction divs (using itemprop)
+        if not instructions:
+            alternative_instruction_div = tree.xpath('//div[@itemprop="recipeInstructions"]')
+            if alternative_instruction_div:
+                instructions_text = alternative_instruction_div[0].text_content().strip()
+                instructions = instructions_text.split('\n')  # Split by new lines to separate steps
+                instructions = [step.strip() for step in instructions if step.strip()]
+
+        # Fallback for detailed instructions (e.g., if the recipe links elsewhere)
+        if not instructions:
+            detailed_instructions = tree.xpath('//p[contains(@id, "detailedInstructionsMention")]')
+            if detailed_instructions:
+                instructions = [p.text.strip() for p in detailed_instructions if p.text.strip()]
+
+        # Exclude any instruction containing "Read the detailed instructions on..."
+        instructions = [instruction for instruction in instructions if "Read the detailed instructions on" not in instruction]
+
+        # Clean up empty instructions and compile the data
         instructions = [instruction for instruction in instructions if instruction]
 
         # Create a dictionary to store the recipe data
@@ -101,39 +139,41 @@ def scrape_recipe(url):
     else:
         print(f"Failed to retrieve the page. Status code: {response.status_code}")
         return None
-# saves PDF in static folder, locally
 
-# @app.route('/save_pdf', methods=['POST'])
-# def save_pdf():
-#     recipe_data = session.get('recipe_data')
-#     if not recipe_data:
-#         flash("No recipe data available to download.", "danger")
-#         return redirect(url_for('get_recipes'))
 
-#     pdf = FPDF()
-#     pdf.add_page()
-#     pdf.set_font("Arial", size=12)
+# def scrape_recipe(url):
+#     response = requests.get(url)
+#     if response.status_code == 200:
+#         tree = html.fromstring(response.content)
 
-#     # Add title
-#     pdf.cell(200, 10, txt=f"Recipe: {recipe_data['title']}", ln=True, align='C')
+#         # Extract recipe title
+#         recipe_title = tree.xpath('/html/body/div[4]/div/div[3]/h1/text()')
+#         recipe_title = recipe_title[0].strip() if recipe_title else 'Title not found'
 
-#     # Add ingredients
-#     pdf.cell(200, 10, txt="Ingredients:", ln=True)
-#     for ingredient in recipe_data['ingredients']:
-#         pdf.cell(200, 10, txt=ingredient, ln=True)
+#         # Extract ingredients
+#         ingredients = tree.xpath('/html/body/div[4]/div/div[3]/div[9]/div/div[2]/div[3]/text()')
+#         ingredients = [ingredient.strip() for ingredient in ingredients if ingredient.strip()]
 
-#     # Add instructions
-#     pdf.cell(200, 10, txt="Instructions:", ln=True)
-#     for instruction in recipe_data['instructions']:
-#         pdf.multi_cell(0, 10, txt=instruction)
+#         # Extract instructions, with a fallback to another method if the first fails
+#         instructions = tree.xpath('/html/body/div[4]/div/div[3]/div[8]/div/div/ol/li/text()')
+#         if not instructions:  # Attempt a secondary method
+#             instructions_div = tree.xpath('/html/body/div[4]/div/div[3]/div[8]/div/div/text()')
+#             instructions = [text.strip() for text in instructions_div if text.strip()]
 
-#     # Save the PDF to a temporary file
-#     pdf_filename = f"{recipe_data['title']}.pdf"
-#     pdf_path = os.path.join('static', pdf_filename)
-#     pdf.output(pdf_path)
+#         # Clean instructions
+#         instructions = [instruction for instruction in instructions if instruction]
 
-#     # Send the PDF file to the user
-#     return send_file(pdf_path, as_attachment=True)
+#         # Create a dictionary to store the recipe data
+#         recipe_data = {
+#             'title': recipe_title,
+#             'ingredients': ingredients,
+#             'instructions': instructions
+#         }
+
+#         return recipe_data
+#     else:
+#         print(f"Failed to retrieve the page. Status code: {response.status_code}")
+#         return None
 
 @app.route('/recipe', methods=['POST'])
 def recipe():
@@ -153,8 +193,8 @@ def recipe():
     return redirect(url_for('get_recipes'))
 
 
-if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=8000)
-
 # if __name__ == '__main__':
-#     app.run(debug=True)
+#     uvicorn.run("main:app", host="0.0.0.0", port=8000)
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-image: url('static/background.png');
+            background-image: url('static/bkg8.png');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
@@ -35,7 +35,7 @@
             position: relative;
             width: 50%;
             max-width: 600px;
-            background: rgba(255, 255, 255, 0.015);
+            background: rgba(255, 255, 255, 0.514);
             border-radius: 20px;
             justify-content: center;
             align-items: center;            
@@ -47,7 +47,7 @@
         .search-bar input {
             flex-grow: 1;
             width: calc(100% - 120px);
-            background: rgba(103, 181, 103, 0.273);
+            background: rgb(238, 238, 238);
             border: none;
             padding: 10px 15px;
             box-shadow: 1px 4px 3px #000;
@@ -58,9 +58,9 @@
         }
 
         .search-bar button {
-            background-color: #007bff05;
+            background-color: #f3f6f9cc;
             border: none;
-            color: rgba(255, 255, 255, 0.763);
+            color: rgb(7, 112, 4);
             padding: 10px 10px;
             justify-content: center;
             font-size: 16px;
@@ -103,11 +103,11 @@
         .welcome-title {
             position: relative;
             text-align: center;
-            color: #048526;
+            color: #cfbf8b;
             text-shadow: 
-                -2px -1px 0 #013908,  
-                1px -1px 0 #b7dcc2,  
+                -2px -1px 0 #620306,  
                 -3px 1px 0 #000000,  
+                1px -1px 0 #000000,
                 1px 1px 0 #000;
             font-family: 'Dancing Script', cursive;
             margin-top: 200px; 
@@ -116,7 +116,7 @@
         }
 
         .welcome-title h1 {
-            font-size: 50px;
+            font-size: 80px;
             font-weight: bold;
             
         }
@@ -182,14 +182,12 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-center" style="color: antiquewhite; font-family: cursive; margin-top: 20px;">No recipes to display. Please enter ingredients to search for recipes.</p>
+        <p class="text-center" style="color: antiquewhite; 
+        font-family: cursive; 
+        margin-top: 20px;
+        text-shadow: 1px 1px 1px #000;">No recipes to display. Please enter ingredients to search for recipes.</p>
     {% endif %}
 </div>
-
-<!-- <footer>
-    <p style="text-decoration: wavy;">by CrazyFroggg</p>
-    <p>&copy; 2024 Recipe Finder. All Rights Reserved.</p>
-</footer> -->
 
 <!-- Add Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

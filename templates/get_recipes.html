@@ -6,33 +6,146 @@
     <title>Recipe Finder</title>
     <!-- Add Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('static/background.png'); /* Replace with your plate image URL */
+            background-size: cover; /* Makes the image cover the entire page */
+            background-repeat: no-repeat; /* Prevents tiling of the image */
+            background-attachment: fixed; /* Keeps the image fixed while scrolling */
+            background-position: center; /* Centers the image on the page */
+            margin: 0; /* Removes default body margin for proper scaling */
+            padding: 0;
+            font-family: 'Arial', sans-serif; /* Ensures a clean font */
+            color: #333; /* Sets default text color for contrast */
+        }
+
+        .search-container {
+            position: relative;
+            min-height: 100px; 
+            width: 110%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0;
+        }
+
+        .search-bar {
+            width: 50%;
+            background: rgba(255, 255, 255, 0.015);
+            border-radius: 25px;
+            justify-content: center;
+            align-items: center;            
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+        }
+
+        .search-bar input {
+            width: calc(80% - 120px);
+            background: rgba(255, 255, 255, 0.273);
+            border: none;
+            padding: 10px 15px;
+            font-size: 18px;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+
+        .search-bar button {
+            background-color: #007bff05;
+            border: none;
+            color: rgba(255, 255, 255, 0.763);
+            padding: 10px 10px;
+            justify-content: center;
+            font-size: 18px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #5fb3007b;
+        }
+
+        .recipe-card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .recipe-card img {
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .recipe-card .card-body {
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f1f1f1;
+            margin-top: 50px;
+        }
+        title {
+            color: aquamarine; 
+            size: 50; 
+            text-align: center; 
+            padding: 1cm;
+        }
+        .welcome-title {
+            position: relative;
+            text-align: center;
+            color: #048526;
+            text-shadow: 
+                -2px -1px 0 #013908,  
+                1px -1px 0 #b7dcc2,  
+                -3px 1px 0 #000000,  
+                1px 1px 0 #000;
+            font-family: 'Dancing Script', cursive;
+            margin-top: 200px; 
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-title h1 {
+            font-size: 50px; /* Larger font for the main title */
+            font-weight: bold;
+            
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 class="my-5 text-center">Find Recipes by Ingredients</h1>
 
-    <!-- Recipe Search Form -->
-    <form method="POST" class="my-4">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.ingredients.label(class="form-label") }}
-            {{ form.ingredients(class="form-control") }}
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg">Get Recipes</button>
-    </form>
+
+<div class="container">
+    <div class="welcome-title">
+        <h1>Welcome to your recipes discovery journey!</h1>
+    </div>    
+    <!-- Search Section -->
+    <div class="search-container">
+        <form method="POST" class="search-bar">
+            {{ form.hidden_tag() }}
+            {{ form.ingredients(class="form-control form-control-lg d-inline-block") }}
+            <button type="submit" class="btn btn-primary btn-lg">Find Recipes</button>
+        </form>
+    </div>
 
     <!-- Display Recipes -->
+
     {% if recipes %}
-        <h2 class="my-4">Recipe Suggestions</h2>
+        <h2 class="my-4 text-center" style="color: #5fb300dd; 
+                text-shadow: 2px 4px 8px rgba(255, 255, 255, 0.3);
+                font-family: 'Dancing Script', cursive;
+                font-size: 46px;">Recipe Suggestions</h2>
         <div class="row">
             {% for recipe in recipes %}
                 <div class="col-md-4">
-                    <div class="card mb-4">
+                    <div class="card recipe-card mb-4">
                         <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.title }}">
                         <div class="card-body">
                             <h5 class="card-title">{{ recipe.title }}</h5>
-                            <!-- Replace 'View Full Recipe' button with 'See Recipe' -->
                             <form action="{{ url_for('recipe') }}" method="POST">
                                 <input type="hidden" name="recipe_url" value="https://spoonacular.com/recipes/{{ recipe.title | replace(' ', '-') }}-{{ recipe.id }}">
                                 <button type="submit" class="btn btn-info">See Recipe</button>
@@ -43,16 +156,19 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-center">No recipes to display. Please enter ingredients to search for recipes.</p>
+        <p class="text-center" style="color: antiquewhite; font-family: cursive; margin-top: 20px;">No recipes to display. Please enter ingredients to search for recipes.</p>
     {% endif %}
 </div>
+
+<!-- <footer>
+    <p style="text-decoration: wavy;">by CrazyFroggg</p>
+    <p>&copy; 2024 Recipe Finder. All Rights Reserved.</p>
+</footer> -->
 
 <!-- Add Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
-
 
 </body>
 </html>

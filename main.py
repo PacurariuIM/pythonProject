@@ -10,18 +10,18 @@ from lxml import html
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+# db = SQLAlchemy(app)
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Debugging table
-@app.route('/db_check')
-def db_check():
-    with app.app_context():
-        tables = db.engine.table_names()
-        return f"Tables in database: {tables}"
+# @app.route('/db_check')
+# def db_check():
+#     with app.app_context():
+#         tables = db.engine.table_names()
+#         return f"Tables in database: {tables}"
     
 # Route to get ingredients, send request, return recipes
 SPOONACULAR_API_KEY = os.getenv('SPOONACULAR_API_KEY')

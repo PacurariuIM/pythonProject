@@ -1,0 +1,10 @@
+# Menu discovery app
+## Backend (TODO journaling)
+- Flask
+## Frontend (TODO journaling)
+- HTML
+## Server 
+- Hetzner Cloud
+- [Server setup](journal/server_setup.md)
+## Automate CI/CD (TODO)
+- Github Actions

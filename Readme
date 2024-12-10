@@ -4,7 +4,9 @@
 ## Frontend (TODO journaling)
 - HTML
 ## Server 
-- Hetzner Cloud
-- [Server setup](journal/server_setup.md)
+- Generate SSH key [(example)](journal/ssh_gen.md)
+- Hetzner Cloud [(website)](https://www.hetzner.com/)
+- Server setup [(my steps)](journal/server_setup.md)
 ## Automate CI/CD (TODO)
+- Generate SSH key [(example)](journal/ssh_gen.md)
 - Github Actions

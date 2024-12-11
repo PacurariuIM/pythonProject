@@ -46,25 +46,27 @@ jobs:
         SERVER_USER: ${{ secrets.SERVER_USER }}
         SERVER_IP: ${{ secrets.SERVER_IP }}
 
-    - name: Rollback on failure
-        ${{ if failure() }}:
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            set -e  # Exit on error
-            if [ -d "/home/cheloo/myapp_backup" ]; then
-              echo "Rolling back to the previous version..."
-              rm -rf /home/cheloo/eat-me || true
-              mv /home/cheloo/myapp_backup /home/cheloo/eat-me
-              sudo systemctl restart nginx || exit 1
-              sudo systemctl restart my-flask-app || exit 1
-            else
-              echo "No backup available for rollback!"
-            fi
-          EOF
-        env:
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-
     - name: Check deployment status
-      ${{ if success() }}:
-        run: echo "Deployment successful!"
+      if: ${{ success() }}
+      run: echo "Deployment successful!"
+      
+    - name: Rollback on failure
+      if: ${{ failure() }}
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          set -e  # Exit on error
+          if [ -d "/home/cheloo/myapp_backup" ]; then
+            echo "Rolling back to the previous version..."
+            rm -rf /home/cheloo/eat-me || true
+            mv /home/cheloo/myapp_backup /home/cheloo/eat-me
+            sudo systemctl restart nginx || exit 1
+            sudo systemctl restart my-flask-app || exit 1
+          else
+            echo "No backup available for rollback!"
+          fi
+        EOF
+      env:
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        SERVER_IP: ${{ secrets.SERVER_IP }}
+
+    

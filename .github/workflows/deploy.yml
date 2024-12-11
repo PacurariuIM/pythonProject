@@ -23,6 +23,7 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           cd /home/cheloo/eat-me || exit 1
+          git reset --hard HEAD || exit 1
           git pull origin main || exit 1
           # Optional: Run build or other tasks (e.g., pip install, npm install)
           sudo systemctl restart nginx || exit 1

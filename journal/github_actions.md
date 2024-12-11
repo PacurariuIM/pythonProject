@@ -142,3 +142,5 @@ Verify Deployment:
 After the pipeline runs, verify that the code was successfully deployed to the server:
 - Check that the server has the latest code from GitHub.
 - Ensure that Nginx and your Flask app have been restarted correctly.
+
+## Step 4: Rollback mechanism

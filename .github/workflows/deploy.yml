@@ -47,7 +47,7 @@ jobs:
         SERVER_IP: ${{ secrets.SERVER_IP }}
 
     - name: Rollback on failure
-        if: failure()
+        if: ${{ failure() }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             set -e  # Exit on error
@@ -66,5 +66,5 @@ jobs:
           SERVER_IP: ${{ secrets.SERVER_IP }}
 
     - name: Check deployment status
-      if: success()
+      if: ${{ success() }}
         run: echo "Deployment successful!"

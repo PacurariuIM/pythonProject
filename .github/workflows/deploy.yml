@@ -20,8 +20,8 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Deploy to Hetzner server
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} <<EOF
+      run: >-
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}
         set -e  # Exit on error
 
         # Step 1: Backup current deployment
@@ -41,7 +41,6 @@ jobs:
         echo "Restarting services..."
         sudo -S systemctl restart nginx || exit 1
         sudo -S systemctl restart eat-me.service || exit 1
-        EOF     
       env:
         SERVER_USER: ${{ secrets.SERVER_USER }}
         SERVER_IP: ${{ secrets.SERVER_IP }}
@@ -52,8 +51,8 @@ jobs:
       
     - name: Rollback on failure
       if: ${{ failure() }}
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} <<EOF
+      run: >-
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}
         set -e  # Exit on error
         if [ -d "/home/cheloo/myapp_backup" ]; then
           echo "Rolling back to the previous version..."
@@ -64,7 +63,6 @@ jobs:
         else
           echo "No backup available for rollback!"
         fi
-        EOF
       env:
         SERVER_USER: ${{ secrets.SERVER_USER }}
         SERVER_IP: ${{ secrets.SERVER_IP }}

@@ -21,26 +21,26 @@ jobs:
 
     - name: Deploy to Hetzner server
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
-          set -e  # Exit on error
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} <<EOF
+        set -e  # Exit on error
 
-          # Step 1: Backup current deployment
-          if [ -d "/home/cheloo/eat-me" ]; then
-            echo "Backing up current deployment..."
-            rm -rf /home/cheloo/myapp_backup || true
-            cp -r /home/cheloo/eat-me /home/cheloo/myapp_backup
-          fi
+        # Step 1: Backup current deployment
+        if [ -d "/home/cheloo/eat-me" ]; then
+          echo "Backing up current deployment..."
+          rm -rf /home/cheloo/myapp_backup || true
+          cp -r /home/cheloo/eat-me /home/cheloo/myapp_backup
+        fi
 
-          # Step 2: Deploy new code
-          echo "Deploying new code..."
-          cd /home/cheloo/eat-me || exit 1
-          git reset --hard HEAD || exit 1
-          git pull origin main || exit 1
+        # Step 2: Deploy new code
+        echo "Deploying new code..."
+        cd /home/cheloo/eat-me || exit 1
+        git reset --hard HEAD || exit 1
+        git pull origin main || exit 1
 
-          # Step 3: Restart services
-          echo "Restarting services..."
-          sudo -S systemctl restart nginx || exit 1
-          sudo -S systemctl restart eat-me.service || exit 1
+        # Step 3: Restart services
+        echo "Restarting services..."
+        sudo -S systemctl restart nginx || exit 1
+        sudo -S systemctl restart eat-me.service || exit 1
         EOF     
       env:
         SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -53,17 +53,17 @@ jobs:
     - name: Rollback on failure
       if: ${{ failure() }}
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
-          set -e  # Exit on error
-          if [ -d "/home/cheloo/myapp_backup" ]; then
-            echo "Rolling back to the previous version..."
-            rm -rf /home/cheloo/eat-me || true
-            mv /home/cheloo/myapp_backup /home/cheloo/eat-me
-            sudo -S systemctl restart nginx || exit 1
-            sudo -S systemctl restart eat-me.service || exit 1
-          else
-            echo "No backup available for rollback!"
-          fi
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} <<EOF
+        set -e  # Exit on error
+        if [ -d "/home/cheloo/myapp_backup" ]; then
+          echo "Rolling back to the previous version..."
+          rm -rf /home/cheloo/eat-me || true
+          mv /home/cheloo/myapp_backup /home/cheloo/eat-me
+          sudo -S systemctl restart nginx || exit 1
+          sudo -S systemctl restart eat-me.service || exit 1
+        else
+          echo "No backup available for rollback!"
+        fi
         EOF
       env:
         SERVER_USER: ${{ secrets.SERVER_USER }}

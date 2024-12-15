@@ -21,7 +21,7 @@ jobs:
 
     - name: Deploy to Hetzner server
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
           set -e  # Exit on error
 
           # Step 1: Backup current deployment
@@ -53,7 +53,7 @@ jobs:
     - name: Rollback on failure
       if: ${{ failure() }}
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
           set -e  # Exit on error
           if [ -d "/home/cheloo/myapp_backup" ]; then
             echo "Rolling back to the previous version..."

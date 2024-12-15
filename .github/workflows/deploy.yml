@@ -40,7 +40,7 @@ jobs:
           # Step 3: Restart services
           echo "Restarting services..."
           sudo -S systemctl restart nginx || exit 1
-          sudo -S systemctl restart my-flask-app || exit 1
+          sudo -S systemctl restart eat-me.service || exit 1
         EOF     
       env:
         SERVER_USER: ${{ secrets.SERVER_USER }}

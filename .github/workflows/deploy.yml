@@ -60,7 +60,7 @@ jobs:
             rm -rf /home/cheloo/eat-me || true
             mv /home/cheloo/myapp_backup /home/cheloo/eat-me
             sudo -S systemctl restart nginx || exit 1
-            sudo -S systemctl restart my-flask-app || exit 1
+            sudo -S systemctl restart eat-me.service || exit 1
           else
             echo "No backup available for rollback!"
           fi

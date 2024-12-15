@@ -144,3 +144,16 @@ After the pipeline runs, verify that the code was successfully deployed to the s
 - Ensure that Nginx and your Flask app have been restarted correctly.
 
 ## Step 4: Rollback mechanism
+### 1. Backup Current Deployment:
+- During deployment, the current application folder `$HOME/eat-me` is backed up to `$HOME/myapp_backup` using `cp -r`
+- This ensures a fallback version of the application is always available if the deployment fails.
+### 2. Rollback Logic:
+- If deployment fails *(failure() in GitHub Actions)*, the rollback logic is triggered.
+- The failed deployment folder (`$HOME/eat-me`) is removed using `rm -rf`
+- The backup folder (`$HOME/myapp_backup`) is restored by moving it back to its original location (`mv $HOME/myapp_backup $HOME/eat-me`).
+### 3. Service Restarts:
+- After restoring the previous version, critical services (e.g., nginx and the Flask app service) are restarted to ensure the application runs with the rollback version.
+### 4. Safety Checks:
+- The rollback step includes a check for the presence of the backup folder. If it does not exist, the script logs an error and avoids unintended behavior.
+### 5. GitHub Actions Integration:
+- The rollback logic is integrated into the CI/CD pipeline as a conditional step executed only when deployment fails. It ensures seamless recovery with minimal manual intervention.
